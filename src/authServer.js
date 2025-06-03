@@ -42,7 +42,6 @@ app.get('/oauth2callback', async (req, res) => {
 
 async function saveTokens(userId, tokens) {
     // Save the tokens securely in a database, associated with the user ID
-    // Example: db.saveUserTokens(userId, tokens);
     try {
         await User.update({ tokens: JSON.stringify(tokens) }, { where: { discord_id: userId } });
     } catch (error) {

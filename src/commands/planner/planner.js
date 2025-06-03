@@ -157,7 +157,7 @@ module.exports = {
         
                             eventList += '```'; // End the monospaced block
                             embed.setFields({ name: 'All Events', value: eventList });
-                             
+                            
                             return await interaction.editReply({
                                 embeds: [embed],
                             });
@@ -183,7 +183,6 @@ module.exports = {
                             eventList += `ID  Name         Description\n`; // Add the header
         
                             owned.map(event => {
-                                // Ensure values are strings and provide fallback values for null or undefined
                                 const description = event.description || 'No description';
         
                                 // Append each event, ensuring proper padding for alignment

@@ -4,28 +4,28 @@ const planner = require('../commands/planner/planner');
 module.exports = {
     infoMessage() {
         return new EmbedBuilder()
-            .setTitle('📒  User Information')  // Directly using an emoji in the title
+            .setTitle('📒  User Information')
             .setColor('White')
             .setTimestamp();
     },
     
     errorMessage() {
         return new EmbedBuilder()
-            .setTitle('⚠️  Error')  // Directly using an emoji in the title
+            .setTitle('⚠️  Error')
             .setColor('Red')
             .setTimestamp();
     },
 
     utilityMessage() {
         return new EmbedBuilder()
-            .setTitle('🔧  Utility')  // Directly using an emoji in the title
+            .setTitle('🔧  Utility')
             .setColor('Blue')
             .setTimestamp();
     },
 
     plannerMessage() {
         return new EmbedBuilder()
-            .setTitle('📅  Planner')  // Directly using an emoji in the title
+            .setTitle('📅  Planner')
             .setColor('Purple')
             .setTimestamp();
     }

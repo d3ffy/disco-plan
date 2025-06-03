@@ -1,4 +1,4 @@
-const { Sequelize, DataTypes } = require('sequelize');
+const { Sequelize } = require('sequelize');
 
 const customLogging = (msg) => {
   if (msg.toLowerCase().includes('warning')) {

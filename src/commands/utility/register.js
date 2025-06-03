@@ -26,5 +26,5 @@ module.exports = {
                 embeds: [embed.setDescription(`${interaction.user.username} registered to deffy-bot! :white_check_mark:`)],
                 ephemeral: true 
             })
-	    }
+	}
 }}
