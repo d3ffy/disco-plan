@@ -38,7 +38,7 @@ async function updateUserEmail(interaction) {
     return user;
   } catch (error) {
     console.error('Error updating user email:', error);
-    return { error: `${interaction.user.username} not registered to deffy-bot.` };
+    return { error: `${interaction.user.username} not registered to DiscoPlan.` };
   }
 }
 
@@ -48,7 +48,7 @@ async function updateUsername(interaction) {
     const existingUser = await getUser(interaction);
 
     if (!existingUser) {
-      return { error: `${interaction.user.username} not registered to deffy-bot.` };
+      return { error: `${interaction.user.username} not registered to DiscoPlan.` };
     }
 
     // Update username

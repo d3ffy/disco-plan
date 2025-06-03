@@ -6,7 +6,7 @@ module.exports = {
 	category: 'utility',
 	data: new SlashCommandBuilder()
 		.setName('register')
-		.setDescription('Register to deffy-bot!')
+		.setDescription('Register to DiscoPlan!')
         .addStringOption(option =>
             option
                 .setName('email')
@@ -23,7 +23,7 @@ module.exports = {
             });
         } else {
             return await interaction.reply({
-                embeds: [embed.setDescription(`${interaction.user.username} registered to deffy-bot! :white_check_mark:`)],
+                embeds: [embed.setDescription(`${interaction.user.username} registered to DiscoPlan! :white_check_mark:`)],
                 ephemeral: true 
             })
 	}

@@ -32,7 +32,7 @@ async function findEvent(event_id) {
 async function findOwnedEvents(interaction) {
   const user = await getUser(interaction);
   if (!user) {
-    return { error: `${interaction.user.username} not registered to deffy-bot.` };
+    return { error: `${interaction.user.username} not registered to DiscoPlan.` };
   }
   try {
     // List events id from event_user
@@ -58,7 +58,7 @@ async function findOwnedEvents(interaction) {
 async function findRelatedEvents(interaction) {
   const user = await getUser(interaction);
   if (!user) {
-    return { error: `${interaction.user.username} not registered to deffy-bot.` };
+    return { error: `${interaction.user.username} not registered to DiscoPlan.` };
   }
   try {
     // List events id from event_user
@@ -83,7 +83,7 @@ async function findRelatedEvents(interaction) {
 async function addEvent(interaction) {
   const user = await getUser(interaction);
   if (!user) {
-    return { error: `${interaction.user.username} not registered to deffy-bot.` };
+    return { error: `${interaction.user.username} not registered to DiscoPlan.` };
   }
   let startTime, endTime;
   // Check if start_time is a valid date
@@ -127,7 +127,7 @@ async function removeEvents(interaction) {
   const user = await getUser(interaction);
   const eventId = interaction.options.getInteger('id');
   if (!user) {
-    return { error: `${interaction.user.username} not registered to deffy-bot.` };
+    return { error: `${interaction.user.username} not registered to DiscoPlan.` };
   }
   try {
     // Save event title name
@@ -185,7 +185,7 @@ async function addEventMember(event_id, interaction, discord_id) {
   // Check if the user is registered
   const user = await getUser(interaction);
   if (!user) {
-    return { error: `${interaction.user.username} not registered to deffy-bot.` };
+    return { error: `${interaction.user.username} not registered to DiscoPlan.` };
   }
   try {
     // Check if the event exists and the user is the owner
@@ -217,7 +217,7 @@ async function removeEventMember(event_id, interaction, discord_id) {
   // Check if the user is registered
   const user = await getUser(interaction);
   if (!user) {
-    return { error: `${interaction.user.username} not registered to deffy-bot.` };
+    return { error: `${interaction.user.username} not registered to DiscoPlan.` };
   }
   try {
     // Check if the event exists and the user is the owner

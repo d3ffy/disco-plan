@@ -4,7 +4,7 @@ module.exports = {
 	category: 'utility',
 	data: new SlashCommandBuilder()
 		.setName('auth')
-		.setDescription('Setup authentication for deffy-bot.'),
+		.setDescription('Setup authentication for DiscoPlan.'),
 		
 	async execute(interaction) {
 		const authUrl = `http://localhost:3000/auth?user_id=${interaction.user.id}`;

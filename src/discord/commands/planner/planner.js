@@ -106,7 +106,7 @@ module.exports = {
         // Get the subcommand group
         switch (interaction.options.getSubcommandGroup()) {
             case 'member':
-                await interaction.deferReply({ ephemeral: true }) // deffy's bot thinking...
+                await interaction.deferReply({ ephemeral: true }) // DiscoPlan bot thinking...
                 switch (interaction.options.getSubcommand()) {
                     case 'add':
                         // Add event_users
@@ -141,7 +141,7 @@ module.exports = {
                 switch (interaction.options.getSubcommand()) {
                     // List all planner events.
                     case 'list':
-                        await interaction.deferReply() // deffy's bot thinking...
+                        await interaction.deferReply() // DiscoPlan bot thinking...
                         const events = await findAllEvents();
                         if (!events) {
                             return await interaction.editReply({
@@ -170,7 +170,7 @@ module.exports = {
                         }
                     // List all planner events owned by user.
                     case 'owned':
-                        await interaction.deferReply({ ephemeral: true }) // deffy's bot thinking...
+                        await interaction.deferReply({ ephemeral: true }) // DiscoPlan bot thinking...
                         const owned = await findOwnedEvents(interaction);
                         if (owned.error) {
                             return await interaction.editReply({
@@ -204,7 +204,7 @@ module.exports = {
 
                     // List all planner events related to user.
                     case 'related':
-                        await interaction.deferReply({ ephemeral: true }) // deffy's bot thinking...
+                        await interaction.deferReply({ ephemeral: true }) // DiscoPlan bot thinking...
                         const related = await findRelatedEvents(interaction);
                         if (related.error) {
                             return await interaction.editReply({
@@ -237,7 +237,7 @@ module.exports = {
         
                     // Add an event to the planner.
                     case 'add':
-                        await interaction.deferReply({ ephemeral: true }) // deffy's bot thinking...
+                        await interaction.deferReply({ ephemeral: true }) // DiscoPlan bot thinking...
                         const add = await addEvent(interaction);
                         if (add.error) {
                             return await interaction.editReply({
@@ -259,7 +259,7 @@ module.exports = {
         
                     // Remove an event from the planner.
                     case 'remove':
-                        await interaction.deferReply({ ephemeral: true }) // deffy's bot thinking...
+                        await interaction.deferReply({ ephemeral: true }) // DiscoPlan bot thinking...
                         const removeEvent = await removeEvents(interaction)
                         if (removeEvent.error) {
                             return await interaction.editReply({
@@ -274,7 +274,7 @@ module.exports = {
                     
                     // Get event details.
                     case 'detail':
-                        await interaction.deferReply({ ephemeral: true }) // deffy's bot thinking...
+                        await interaction.deferReply({ ephemeral: true }) // DiscoPlan bot thinking...
                         const event = await findEvent(interaction.options.getInteger('id'));
                         if (!event) {
                             return await interaction.editReply({
