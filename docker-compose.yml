@@ -1,1 +1,43 @@
-# test kub
+version: '3'
+
+services:
+  disco-bot:
+    build: .
+    container_name: disco-bot
+    command: sh -c "node src/deploy-commands.js && 
+            echo 'Commands deployed successfully' && 
+            node src/index.js"
+    environment:
+      - NODE_ENV=production
+    env_file:
+      - .env
+    volumes:
+      - ./sqlite.db:/app/sqlite.db
+      - ./src:/app/src
+    restart: unless-stopped
+    depends_on:
+      - auth-server
+    networks:
+      - bot-network
+
+  auth-server:
+    build: .
+    container_name: disco-auth-server
+    command: node src/auth/authServer.js
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+    env_file:
+      - .env
+    volumes:
+      - ./sqlite.db:/app/sqlite.db
+      - ./src:/app/src
+    restart: unless-stopped
+    networks:
+      - bot-network
+
+networks:
+  bot-network:
+    driver: bridge

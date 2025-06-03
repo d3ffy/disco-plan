@@ -21,6 +21,7 @@
     "embed-table": "^4.2.3",
     "googleapis": "^105.0.0",
     "sequelize": "^6.37.5",
-    "sqlite3": "^5.1.7"
+    "sqlite3": "^5.1.7",
+    "express": "^4.18.2"
   }
 }
