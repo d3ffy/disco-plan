@@ -1,20 +1,18 @@
-// models/eventUser.js
-const { DataTypes } = require('sequelize');
-const sequelize = require('../src/config/databaseConfig');
+const { DataTypes } = require("sequelize");
+const sequelize = require("../src/config/databaseConfig");
 
 // Define the EventUser junction table
 const EventUser = sequelize.define('EventUser', {
-    id: {
-        type: DataTypes.INTEGER,
-        primaryKey: true,
-        autoIncrement: true,
-    },
     event_id: {
         type: DataTypes.INTEGER,
         allowNull: false,
     },
     owned: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
+    },
+    discord_id: {
+        type: DataTypes.STRING,
         allowNull: false,
     },
 }, {

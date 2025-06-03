@@ -1,11 +1,20 @@
-const sequelize = require('../src/config/databaseConfig'); // Import the sequelize instance
+const sequelize = require('../src/config/databaseConfig');
 const User = require('./user');
 const Event = require('./event');
 const EventUser = require('./event_user');
 
-// Set up associations (many-to-many relationship between users and events)
-User.belongsToMany(Event, { through: EventUser, foreignKey: 'discord_id' });
-Event.belongsToMany(User, { through: EventUser, foreignKey: 'event_id' });
+// Define associations (many-to-many)
+User.belongsToMany(Event, {
+  through: EventUser,
+  foreignKey: 'discord_id',
+  otherKey: 'event_id',
+});
+
+Event.belongsToMany(User, {
+  through: EventUser,
+  foreignKey: 'event_id',
+  otherKey: 'discord_id',
+});
 
 // Sync models with the database
 sequelize.sync()

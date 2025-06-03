@@ -12,6 +12,7 @@ const customLogging = (msg) => {
 const sequelize = new Sequelize({
   dialect: 'sqlite',
   storage: './sqlite.db', // Path to your SQLite database file
+  mode: 'OPEN_READWRITE',
   logging: (customLogging),
 });
 

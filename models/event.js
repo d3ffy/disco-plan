@@ -3,24 +3,15 @@ const sequelize = require('../src/config/databaseConfig');
 
 // Define the Event model
 const Event = sequelize.define('Event', {
-  id: {
+  event_id: {
     type: DataTypes.INTEGER,
     primaryKey: true,
     autoIncrement: true,
   },
-  title: {
-    type: DataTypes.STRING,
-    allowNull: false,
-  },
-  description: {
-    type: DataTypes.STRING,
-  },
-  start_time: {
-    type: DataTypes.DATE,
-  },
-  end_time: {
-    type: DataTypes.DATE,
-  },
+  title: DataTypes.STRING,
+  description: DataTypes.STRING,
+  start_time: DataTypes.DATE,
+  end_time: DataTypes.DATE,
   created_at: {
     type: DataTypes.DATE,
     defaultValue: Sequelize.NOW,

@@ -3,6 +3,7 @@ const { google } = require('googleapis');
 const { oauthClient } = require('./config/oauthConfig');
 const { getUser } = require('./utility');
 
+// List all events
 async function findAllEvents() {
   try {
     const events = await Event.findAll();
@@ -17,7 +18,7 @@ async function findEvent(event_id) {
   try {
     const event = await Event.findOne({
       where: {
-        id: event_id
+        event_id: event_id
       }
     });
     return event;
@@ -27,30 +28,55 @@ async function findEvent(event_id) {
   }
 }
 
+// List all events owned by the user
 async function findOwnedEvents(interaction) {
   const user = await getUser(interaction);
   if (!user) {
     return { error: `${interaction.user.username} not registered to deffy-bot.` };
   }
   try {
-    const result = await getUserEvents(user.discord_id);
-    console.log(result);
     // List events id from event_user
     const events = await EventUser.findAll({
       where: {
-        owned: user.discord_id
+        owned: true,
+        discord_id: user.discord_id
       }
     })
     // List events from event table
     const ownedEvent = await Event.findAll({
       where: {
-        id: events.map(event => event.event_id)
+        event_id: events.map(event => event.event_id)
       }
     })
     return ownedEvent
   } catch (error) {
     console.error('Error finding owned events:', error);
     return { error: 'Failed to find owned events.' };
+  }
+}
+
+async function findRelatedEvents(interaction) {
+  const user = await getUser(interaction);
+  if (!user) {
+    return { error: `${interaction.user.username} not registered to deffy-bot.` };
+  }
+  try {
+    // List events id from event_user
+    const events = await EventUser.findAll({
+      where: {
+        discord_id: user.discord_id
+      }
+    })
+    // List events from event table
+    const relatedEvent = await Event.findAll({
+      where: {
+        id: events.map(event => event.event_id)
+      }
+    })
+    return relatedEvent;
+  } catch (error) {
+    console.error('Error finding related events:', error);
+    return { error: 'Failed to find related events.' };
   }
 }
 
@@ -81,7 +107,11 @@ async function addEvent(interaction) {
       start_time: startTime,
       end_time: endTime,
     });
-    const eventUser = await addEventUser(event.id, user.discord_id);
+    const eventUser = await EventUser.create({
+      event_id: event.event_id, 
+      owned: true,
+      discord_id: user.discord_id
+    });
     if (eventUser.error) {
       return eventUser.error;
     } else {
@@ -95,6 +125,7 @@ async function addEvent(interaction) {
 
 async function removeEvents(interaction) {
   const user = await getUser(interaction);
+  const eventId = interaction.options.getInteger('id');
   if (!user) {
     return { error: `${interaction.user.username} not registered to deffy-bot.` };
   }
@@ -102,25 +133,39 @@ async function removeEvents(interaction) {
     // Save event title name
     const eventTitle = await Event.findOne({
       where: {
-        id: interaction.options.getInteger('id')
+        event_id: interaction.options.getInteger('id'),
       }
     })
+
     if (!eventTitle) {
       return { error: 'Event not found.' };
     }
 
+    // Check if the user is the owner of the event
+    const ownedEvent = await EventUser.findOne({
+      where: {
+        event_id: eventId,
+        owned: true,
+        discord_id: user.discord_id
+      }
+    });
+
+    if (!ownedEvent) {
+      return { error: 'You are not the owner of this event.' };
+    }
+
     try {
       // Remove event from event table
-      const event = await Event.destroy({
+      await Event.destroy({
         where: {
-          id: interaction.options.getInteger('id')
+          event_id: eventId,
         }
       });
   
       // Remove event from event_user table
-      const eventUser = await EventUser.destroy({
+      await EventUser.destroy({
         where: {
-          event_id: interaction.options.getInteger('id')
+          event_id: eventId,
         }
       })
       return eventTitle;
@@ -136,48 +181,69 @@ async function removeEvents(interaction) {
   }
 }
 
-async function addEventUser(event_id, discord_id) {
+async function addEventMember(event_id, interaction, discord_id) {
+  // Check if the user is registered
+  const user = await getUser(interaction);
+  if (!user) {
+    return { error: `${interaction.user.username} not registered to deffy-bot.` };
+  }
   try {
-    const event = await findEvent(event_id);
-    if (!event) {
-      return { error: 'Event not found.' };
-    }
-    const existingEventUser = await EventUser.findOne({
+    // Check if the event exists and the user is the owner
+    const event = await EventUser.findOne({
       where: {
         event_id: event_id,
-        owned: discord_id
+        owned: true,
+        discord_id: user.discord_id
       }
     })
-    if (existingEventUser) {
-      return { error: 'User already added to this event.' };
+    if (!event) {
+      return { error: 'You are not the owner of this event or event not found.' };
     }
-    const eventUser = await EventUser.create({
+
+    // Add the related user to the event
+    const relatedMember = await EventUser.create({
       event_id: event_id,
-      owned: discord_id,
-    });
-    return eventUser;
+      owned: false,
+      discord_id: discord_id
+    })
+    return relatedMember;
   } catch (error) {
-    console.error('Error adding event user:', error);
-    return { error: 'Failed to add event user.' };
+    console.error('Error adding related user:', error);
+    return { error: 'Failed to add related user.' };
   }
 }
 
-async function removeEventUser(event_id, discord_id) {
+async function removeEventMember(event_id, interaction, discord_id) {
+  // Check if the user is registered
+  const user = await getUser(interaction);
+  if (!user) {
+    return { error: `${interaction.user.username} not registered to deffy-bot.` };
+  }
   try {
-    const event = await findEvent(event_id);
-    if (!event) {
-      return { error: 'Event not found.' };
-    }
-    const eventUser = await EventUser.destroy({
+    // Check if the event exists and the user is the owner
+    const event = await EventUser.findOne({
       where: {
         event_id: event_id,
-        owned: discord_id
+        owned: true,
+        discord_id: user.discord_id
       }
-    });
-    return eventUser;
+    })
+    if (!event) {
+      return { error: 'You are not the owner of this event or event not found.' };
+    }
+
+    // Remove the related user from the event
+    const removedMember = await EventUser.destroy({
+      where: {
+        event_id: event_id,
+        owned: false,
+        discord_id: discord_id
+      }
+    })
+    return removedMember;
   } catch (error) {
-    console.error('Error removing event user:', error);
-    return { error: 'Failed to remove event user.' };
+    console.error('Error removing related user:', error);
+    return { error: 'Failed to remove related user.' };
   }
 }
 
@@ -213,13 +279,13 @@ async function getUserEvents(userId) {
   }
 }
 
-
 module.exports = {
   findAllEvents,
   findEvent,
   findOwnedEvents,
   addEvent,
   removeEvents,
-  addEventUser,
-  removeEventUser,
+  addEventMember,
+  removeEventMember,
+  findRelatedEvents
 }

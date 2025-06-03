@@ -1,5 +1,5 @@
 const { SlashCommandBuilder } = require('discord.js');
-const { findAllEvents, findEvent, addEvent, findOwnedEvents, removeEvents, addEventUser, removeEventUser } = require('../../planner');
+const { findAllEvents, findEvent, findOwnedEvents, findRelatedEvents, addEvent, removeEvents, addEventMember, removeEventMember } = require('../../planner');
 const { plannerMessage, errorMessage } = require('../../helper/embedMessage');
 
 module.exports = {
@@ -15,6 +15,10 @@ module.exports = {
             subcommand
                 .setName('owned')
                 .setDescription('List all planner events owned by user.'))
+        .addSubcommand(subcommand =>
+            subcommand
+                .setName('related')
+                .setDescription('List all planner events related to you.'))
         .addSubcommand(subcommand =>
             subcommand
                 .setName('add')
@@ -106,7 +110,7 @@ module.exports = {
                 switch (interaction.options.getSubcommand()) {
                     case 'add':
                         // Add event_users
-                        const addMember = await addEventUser(interaction.options.getInteger('id'), interaction.options.getUser('user').id);
+                        const addMember = await addEventMember(interaction.options.getInteger('id'), interaction, interaction.options.getUser('user').id);
                         if (addMember.error) {
                             return await interaction.editReply({
                                 embeds: [errorMessage().setDescription(addMember.error)],
@@ -120,7 +124,7 @@ module.exports = {
 
                     case 'remove':
                         // Remove event_users
-                        const removeMember = await removeEventUser(interaction.options.getInteger('id'), interaction.options.getUser('user').id);
+                        const removeMember = await removeEventMember(interaction.options.getInteger('id'), interaction, interaction.options.getUser('user').id);
                         if (removeMember.error) {
                             return await interaction.editReply({
                                 embeds: [errorMessage().setDescription(removeMember.error)],
@@ -152,7 +156,7 @@ module.exports = {
                                 const description = event.description || 'No description';
         
                                 // Append each event, ensuring proper padding for alignment
-                                eventList += `${event.id.toString().padEnd(3)} ${event.title.padEnd(12)} ${description}\n`;
+                                eventList += `${event.event_id.toString().padEnd(3)} ${event.title.padEnd(12)} ${description}\n`;
                             });
         
                             eventList += '```'; // End the monospaced block
@@ -186,7 +190,7 @@ module.exports = {
                                 const description = event.description || 'No description';
         
                                 // Append each event, ensuring proper padding for alignment
-                                eventList += `${event.id.toString().padEnd(3)} ${event.title.padEnd(12)} ${description}\n`;
+                                eventList += `${event.event_id.toString().padEnd(3)} ${event.title.padEnd(12)} ${description}\n`;
                             });
         
                             eventList += '```'; // End the monospaced block
@@ -196,6 +200,39 @@ module.exports = {
                                 embeds: [embed],
                             });
         
+                        }
+
+                    // List all planner events related to user.
+                    case 'related':
+                        await interaction.deferReply({ ephemeral: true }) // deffy's bot thinking...
+                        const related = await findRelatedEvents(interaction);
+                        if (related.error) {
+                            return await interaction.editReply({
+                                embeds: [errorMessage().setDescription(related.error)],
+                            });
+                        } 
+                        if (!related) {
+                            return await interaction.editReply({
+                                embeds: [embed.setDescription('No events found.')],
+                            });
+                        }
+                        else {
+                            let eventList = '```\n'; // Start the monospaced block
+                            eventList += `ID  Name         Description\n`; // Add the header
+        
+                            related.map(event => {
+                                const description = event.description || 'No description';
+        
+                                // Append each event, ensuring proper padding for alignment
+                                eventList += `${event.id.toString().padEnd(3)} ${event.title.padEnd(12)} ${description}\n`;
+                            });
+        
+                            eventList += '```'; // End the monospaced block
+                            embed.setFields({ name: 'Related Events', value: eventList });
+                            
+                            return await interaction.editReply({
+                                embeds: [embed],
+                            });
                         }
         
                     // Add an event to the planner.
