@@ -5,7 +5,6 @@ services:
     build: .
     container_name: disco-bot
     command: sh -c "node src/deploy-commands.js && 
-            echo 'Commands deployed successfully' && 
             node src/index.js"
     environment:
       - NODE_ENV=production

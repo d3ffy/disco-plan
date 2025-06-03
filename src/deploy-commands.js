@@ -29,8 +29,6 @@ const rest = new REST().setToken(DISCORD_TOKEN);
 
 (async () => {
 	try {
-		console.log('Started refreshing application (/) commands.');
-
 		await rest.put(
 			Routes.applicationGuildCommands(USER_ID, GUILD_ID),
 			{ body: commands },
