@@ -7,7 +7,7 @@ const client = new Client({ intents: [GatewayIntentBits.Guilds] });
 
 // Reading commands
 client.commands = new Collection();
-const foldersPath = path.join(__dirname, 'commands');
+const foldersPath = path.join(__dirname, 'discord/commands');
 const commandFolders = fs.readdirSync(foldersPath);
 
 for (const folder of commandFolders) {
@@ -25,7 +25,7 @@ for (const folder of commandFolders) {
 }
 
 // Reading events
-const eventsPath = path.join(__dirname, 'events');
+const eventsPath = path.join(__dirname, 'discord/events');
 const eventFiles = fs.readdirSync(eventsPath).filter(file => file.endsWith('.js'));
 
 for (const file of eventFiles) {

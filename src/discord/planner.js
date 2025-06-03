@@ -1,6 +1,6 @@
-const { User, Event, EventUser } = require('../models');
+const { User, Event, EventUser } = require('../../models');
 const { google } = require('googleapis');
-const { oauthClient } = require('./config/oauthConfig');
+const { oauthClient } = require('../config/oauthConfig');
 const { getUser } = require('./utility');
 
 // List all events

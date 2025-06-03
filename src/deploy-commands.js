@@ -5,7 +5,7 @@ const { DISCORD_TOKEN, USER_ID, GUILD_ID } = require('./config/config.js');
 
 const commands = [];
 // Grab all the command folders from the commands directory you created earlier
-const foldersPath = path.join(__dirname, 'commands');
+const foldersPath = path.join(__dirname, 'discord/commands');
 const commandFolders = fs.readdirSync(foldersPath);
 
 for (const folder of commandFolders) {

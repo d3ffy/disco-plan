@@ -1,8 +1,8 @@
 const express = require('express');
 const { google } = require('googleapis');
 const app = express();
-const { oauthClient } = require('./config/oauthConfig');
-const { User } = require('../models');
+const { oauthClient } = require('../config/oauthConfig');
+const { User } = require('../../models');
 
 app.get('/', (req, res) => {
     res.send('Hello! You can now authenticate the bot with Google Calendar.');
