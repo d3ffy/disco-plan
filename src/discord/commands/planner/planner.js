@@ -1,5 +1,5 @@
 const { SlashCommandBuilder } = require('discord.js');
-const { findAllEvents, findEvent, findOwnedEvents, findRelatedEvents, addEvent, removeEvents, addEventMember, removeEventMember } = require('../../planner');
+const { findAllEvents, findEvent, findOwnedEvents, findRelatedEvents, addEvent, removeEvents, addEventMember, removeEventMember, syncEvents } = require('../../planner');
 const { plannerMessage, errorMessage } = require('../../helper/embedMessage');
 
 module.exports = {
@@ -98,8 +98,13 @@ module.exports = {
                         )
                 )
                 
-        ),
-            
+        )
+        .addSubcommand(subcommand =>
+            subcommand
+                .setName('sync')
+                .setDescription('Sync planner to Google Calendar.')
+        )
+        ,
         
     async execute(interaction) {
         const embed = plannerMessage();
@@ -292,6 +297,18 @@ module.exports = {
                                 embeds: [embed],
                             });
                         }
+                    // Sync planner to Google Calendar.
+                    case 'sync':
+                        await interaction.deferReply({ ephemeral: true }) // DiscoPlan bot thinking...
+                        const responses = await syncEvents(interaction);
+                        if (responses.error) {
+                            return await interaction.editReply({
+                                embeds: [errorMessage().setDescription(responses.error)],
+                            });
+                        }
+                        return await interaction.editReply({
+                            embeds: [embed.setDescription(responses.message)],
+                        });
                 }
         }
 	},

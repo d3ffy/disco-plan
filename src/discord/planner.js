@@ -70,7 +70,7 @@ async function findRelatedEvents(interaction) {
     // List events from event table
     const relatedEvent = await Event.findAll({
       where: {
-        id: events.map(event => event.event_id)
+        event_id: events.map(event => event.event_id)
       }
     })
     return relatedEvent;
@@ -247,35 +247,101 @@ async function removeEventMember(event_id, interaction, discord_id) {
   }
 }
 
-async function getUserEvents(userId) {
+async function syncEvents(interaction) {
+  const user = await getUser(interaction);
+  if (!user) {
+    return { error: `${interaction.user.username} not registered to DiscoPlan.` };
+  }
+
   try {
-      // Retrieve user tokens from the database
-      const user = await User.findOne({ where: { discord_id: userId } });
-      if (!user || !user.tokens) {
-          return 'You need to authenticate first! Use `!auth`.';
-      }
+    if (!user.tokens) {
+      return { error: 'You need to authenticate first! Use `/auth`.' };
+    }
 
-      const tokens = JSON.parse(user.tokens);
+    const tokens = JSON.parse(user.tokens);
+    
+    // Set credentials for OAuth client
+    oauthClient.setCredentials(tokens);
+    
+    const calendar = google.calendar({ version: 'v3', auth: oauthClient });
+    
+    // 1. Get related events from database
+    const relatedEvents = await findRelatedEvents(interaction);
 
-      // Set credentials for OAuth client
-      oauthClient.setCredentials(tokens);
-
-      const calendar = google.calendar({ version: 'v3', auth: oauthClient });
-      const res = await calendar.events.list({
-          calendarId: 'primary',
+    // 2. Get event from Google Calendar
+    const res = await calendar.events.list({
+          calendarId: user.email,
           timeMin: new Date().toISOString(),
           maxResults: 5,
           singleEvents: true,
           orderBy: 'startTime',
+    });
+
+    const googleEvents = res.data.items;
+
+    // 3. Add event from Google Calendar to database
+    for (const googleEvent of googleEvents) {
+      const duplicateEvent = await Event.findOne({
+        where: {
+          title: googleEvent.summary,
+        }
       });
 
-      const events = res.data.items;
-      if (!events.length) return 'No upcoming events found.';
+      if (!duplicateEvent) {
+        const event = await Event.create({
+          title: googleEvent.summary,
+          description: googleEvent.description || '',
+          start_time: new Date(googleEvent.start.dateTime || googleEvent.start.date),
+          end_time: new Date(googleEvent.end.dateTime || googleEvent.end.date),
+        });
+        await EventUser.create({
+          event_id: event.event_id,
+          owned: true,
+          discord_id: user.discord_id
+        });
+        console.log(`${user.username} | Event "${googleEvent.summary}" added to the database.`);
+      } else {
+        console.log(`${user.username} | Event "${googleEvent.summary}" already exists in the database.`);
+      }
+    }
 
-      return events.map(event => `📅 ${event.summary} - ${event.start.dateTime || event.start.date}`).join('\n');
+    // 4. Add event from database to Google Calendar
+    const eventTitles = googleEvents.map(event => event.summary);
+
+    for (const event of relatedEvents) {
+      if (!eventTitles.includes(event.title)) {
+        const calendarEvent = {
+          summary: event.title,
+          description: event.description,
+          start: {
+            dateTime: event.start_time.toISOString(),
+            timeZone: 'UTC',
+          },
+          end: {
+            dateTime: event.end_time ? event.end_time.toISOString() : null,
+            timeZone: 'UTC',
+          },
+        };
+
+        // Insert the event into Google Calendar
+        const response = await calendar.events.insert({
+          calendarId: user.email,
+          requestBody: calendarEvent,
+        });
+
+        if (response.status === 200) {
+          console.log(`${user.username} | Event "${event.title}" synced to Google Calendar successfully.`);
+        } else {
+          console.error(`${user.username} | Failed to sync event "${event.title}" to Google Calendar:`, response.statusText);
+        }
+      } else {
+        console.log(`${user.username} | Event "${event.title}" already exists in Google Calendar.`);
+      }
+    }
+    return { message: 'Events synced to Google Calendar successfully.' };
   } catch (error) {
-      console.error('Error fetching events:', error);
-      return 'Failed to fetch events. Please try again.';
+    console.error('Error syncing event to Google Calendar:', error);
+    return { error: 'Failed to sync event to Google Calendar.' };
   }
 }
 
@@ -287,5 +353,6 @@ module.exports = {
   removeEvents,
   addEventMember,
   removeEventMember,
-  findRelatedEvents
+  findRelatedEvents,
+  syncEvents
 }
