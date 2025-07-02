@@ -7,7 +7,6 @@ const { AUTH_SERVER_PORT, AUTH_SERVER_URL } = require('../config/config');
 
 app.get('/', (req, res) => {
     res.send('Hello! You can now authenticate the bot with Google Calendar.');
-    console.log('%cHello!', "color: blue;");
 })
 
 app.get('/auth', (req, res) => {

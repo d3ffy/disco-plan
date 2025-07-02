@@ -266,7 +266,7 @@ async function syncEvents(interaction) {
     const calendar = google.calendar({ version: 'v3', auth: oauthClient });
     
     // 1. Get related events from database
-    const relatedEvents = await findRelatedEvents(interaction);
+    const ownedEvents = await findOwnedEvents(interaction);
 
     // 2. Get event from Google Calendar
     const res = await calendar.events.list({
@@ -308,11 +308,25 @@ async function syncEvents(interaction) {
     // 4. Add event from database to Google Calendar
     const eventTitles = googleEvents.map(event => event.summary);
 
-    for (const event of relatedEvents) {
+    for (const event of ownedEvents) {
       if (!event.start_time) {
         console.error(`${user.username} | Event "${event.title}" has invalid start or end time.`);
         continue;
       }
+      
+      // Fetch related users for the event
+      const relatedUsers = await EventUser.findAll({
+        where: {
+          event_id: event.event_id,
+          owned: false
+        }
+      });
+      const relatedUserEmails = await User.findAll({
+        where: {
+          discord_id: relatedUsers.map(user => user.discord_id)
+        }
+      });
+
       if (!eventTitles.includes(event.title)) {
         const calendarEvent = {
           summary: event.title,
@@ -325,6 +339,9 @@ async function syncEvents(interaction) {
             dateTime: event.end_time ? event.end_time.toISOString() : null,
             timeZone: 'Asia/Bangkok',
           },
+          attendees: relatedUserEmails.map(user => ({
+            email: user.email
+          })),
         };
 
         // Insert the event into Google Calendar
