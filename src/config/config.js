@@ -16,7 +16,7 @@ const AUTH_SERVER_PORT = process.env.AUTH_SERVER_PORT || 3000;
 // Google variables
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
 const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
-const GOOGLE_REDIRECT_URI = AUTH_SERVER_URL + ':' + AUTH_SERVER_PORT + '/oauth2callback';
+const GOOGLE_REDIRECT_URI = AUTH_SERVER_URL + '/oauth2callback';
 
 if (!GOOGLE_CLIENT_ID || !GOOGLE_CLIENT_SECRET) {
     console.warn('[ENV] Google OAuth2 credentials are not set. Please check your .env file.');

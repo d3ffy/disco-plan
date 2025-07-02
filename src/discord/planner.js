@@ -309,17 +309,21 @@ async function syncEvents(interaction) {
     const eventTitles = googleEvents.map(event => event.summary);
 
     for (const event of relatedEvents) {
+      if (!event.start_time) {
+        console.error(`${user.username} | Event "${event.title}" has invalid start or end time.`);
+        continue;
+      }
       if (!eventTitles.includes(event.title)) {
         const calendarEvent = {
           summary: event.title,
           description: event.description,
           start: {
             dateTime: event.start_time.toISOString(),
-            timeZone: 'UTC',
+            timeZone: 'Asia/Bangkok',
           },
           end: {
             dateTime: event.end_time ? event.end_time.toISOString() : null,
-            timeZone: 'UTC',
+            timeZone: 'Asia/Bangkok',
           },
         };
 

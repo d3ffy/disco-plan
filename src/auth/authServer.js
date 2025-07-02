@@ -51,5 +51,5 @@ async function saveTokens(userId, tokens) {
 }
 
 app.listen(AUTH_SERVER_PORT, () => {
-    console.log(`OAuth2 Server running on ${AUTH_SERVER_URL}:${AUTH_SERVER_PORT}`);
+    console.log(`OAuth2 Server running on ${AUTH_SERVER_URL}`);
 });
