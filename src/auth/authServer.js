@@ -3,6 +3,7 @@ const { google } = require('googleapis');
 const app = express();
 const { oauthClient } = require('../config/oauthConfig');
 const { User } = require('../../models');
+const { AUTH_SERVER_PORT, AUTH_SERVER_URL } = require('../config/config');
 
 app.get('/', (req, res) => {
     res.send('Hello! You can now authenticate the bot with Google Calendar.');
@@ -49,6 +50,6 @@ async function saveTokens(userId, tokens) {
     }
 }
 
-app.listen(3000, () => {
-    console.log('%c OAuth2 Server running on http://localhost:3000', "color: blue;");
+app.listen(AUTH_SERVER_PORT, () => {
+    console.log(`OAuth2 Server running on ${AUTH_SERVER_URL}:${AUTH_SERVER_PORT}`);
 });

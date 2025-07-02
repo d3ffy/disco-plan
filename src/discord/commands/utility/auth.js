@@ -1,4 +1,6 @@
 const { SlashCommandBuilder } = require('discord.js');
+const { utilityMessage } = require('../../helper/embedMessage');
+const { AUTH_SERVER_URL, AUTH_SERVER_PORT } = require('../../../config/config');
 
 module.exports = {
 	category: 'utility',
@@ -7,9 +9,11 @@ module.exports = {
 		.setDescription('Setup authentication for DiscoPlan.'),
 		
 	async execute(interaction) {
-		const authUrl = `http://localhost:3000/auth?user_id=${interaction.user.id}`;
+		const authUrl = `${AUTH_SERVER_URL}:${AUTH_SERVER_PORT}/auth?user_id=${interaction.user.id}`;
+		const embed = utilityMessage()
+			.setDescription(`Click [here](${authUrl}) to authenticate with Google Calendar`);
 		return await interaction.reply({
-			content: `Click here to authenticate with Google Calendar: ${authUrl}`,
+			embeds: [embed],
 			ephemeral: true
 		});
 	},
